@@ -7,11 +7,9 @@ import {
 } from '@nestjs/common';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
-
 describe('UserService', () => {
   let userService: UserService;
   let prismaService: PrismaService;
-
   const mockPrismaService = {
     user: {
       create: jest.fn(),
@@ -21,7 +19,6 @@ describe('UserService', () => {
       delete: jest.fn(),
     },
   };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -33,7 +30,6 @@ describe('UserService', () => {
     userService = module.get<UserService>(UserService);
     prismaService = module.get<PrismaService>(PrismaService);
   });
-
   it('should create a new user', async () => {
     const userData = { email: 'test@test.com', password: 'password' };
     mockPrismaService.user.create.mockResolvedValue({
@@ -41,20 +37,16 @@ describe('UserService', () => {
       id: '123',
     });
     const dto = plainToClass(CreateUserDto, userData);
-
     const result = await userService.create(dto);
-
     expect(result).toHaveProperty('id');
     expect(result.email).toBe(userData.email);
   });
-
   it('should throw a ConflictException if user already exists', async () => {
     const userData = { email: 'test@test.com', password: 'password' };
     const dto = plainToClass(CreateUserDto, userData);
     mockPrismaService.user.findUnique.mockResolvedValue(dto);
     await expect(userService.create(dto)).rejects.toThrow(ConflictException);
   });
-
   it('should return all users', async () => {
     const mockUsers = [
       { id: '123', email: 'test1@test.com' },
@@ -64,5 +56,4 @@ describe('UserService', () => {
     const result = await userService.findAll();
     expect(result).toEqual(mockUsers);
   });
-
 });
