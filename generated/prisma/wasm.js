@@ -133,7 +133,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   accountId: 'accountId'
 };
 
-exports.Prisma.UsersScalarFieldEnum = {
+exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   firstName: 'firstName',
   lastName: 'lastName',
@@ -165,7 +165,7 @@ exports.Role = exports.$Enums.Role = {
 exports.Prisma.ModelName = {
   Product: 'Product',
   Order: 'Order',
-  users: 'users'
+  User: 'User'
 };
 
 /**

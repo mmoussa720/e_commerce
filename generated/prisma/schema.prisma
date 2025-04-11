@@ -15,7 +15,9 @@ model Product {
   quality   Decimal
   accountId String?
   orders    Order[]
-  seller    users   @relation(fields: [sellerId], references: [id])
+  seller    User    @relation(fields: [sellerId], references: [id])
+
+  @@map("products")
 }
 
 model Order {
@@ -24,13 +26,14 @@ model Order {
   date       DateTime
   quantity   Int
   accountId  String?
-  customer   users    @relation(fields: [customerId], references: [id])
+  customer   User     @relation(fields: [customerId], references: [id])
   product    Product  @relation(fields: [productId], references: [id])
 
   @@unique([productId, customerId])
+  @@map("orders")
 }
 
-model users {
+model User {
   id        String    @id @default(uuid())
   firstName String
   lastName  String
@@ -39,6 +42,8 @@ model users {
   role      Role
   Order     Order[]
   products  Product[]
+
+  @@map("users")
 }
 
 enum Role {

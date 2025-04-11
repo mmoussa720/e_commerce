@@ -11,7 +11,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingHelper } from 'src/helper/hashing.helper';
 
 @Injectable()
-export class UserService {
+export class userervice {
   constructor(private prismaService: PrismaService) {}
   async create(createUserDto: CreateUserDto) {
     try {
@@ -22,18 +22,19 @@ export class UserService {
       const hashedPassword = await HashingHelper.hashData(
         createUserDto.password,
       );
-      const createdUser = await this.prismaService.users.create({
+      const createdUser = await this.prismaService.user.create({
         data: {
           ...createUserDto,
           password: hashedPassword,
         },
       });
       const { password, ...result } = createdUser;
-      return createdUser;
+      return result;
     } catch (error) {
       if (error instanceof ConflictException) {
         throw error;
       }
+      console.log(error.message);
       throw new InternalServerErrorException(
         'An error occurred while creating the user',
       );
@@ -41,15 +42,15 @@ export class UserService {
   }
   async findAll() {
     try {
-      const users = await this.prismaService.users.findMany();
-      return users.map(({ password, ...rest }) => rest);
+      const user = await this.prismaService.user.findMany();
+      return user.map(({ password, ...rest }) => rest);
     } catch (error) {
       throw new InternalServerErrorException('Error Occured');
     }
   }
   async findOne(id: string) {
     try {
-      const user = await this.prismaService.users.findUnique({
+      const user = await this.prismaService.user.findUnique({
         where: {
           id,
         },
@@ -60,22 +61,27 @@ export class UserService {
       if (error instanceof HttpException) {
         throw error;
       }
+      console.log(error.message);
       throw new InternalServerErrorException('Error Occured');
     }
   }
   async findByEmail(email: string) {
     try {
-      const user = await this.prismaService.users.findUnique({
+      const user = await this.prismaService.user.findUnique({
         where: {
           email,
         },
       });
-      const { password, ...result } = user;
-      return result;
+      if (user != null) {
+        const { password, ...result } = user;
+        return result;
+      }
+      return null;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
+      console.log(error.message);
       throw new InternalServerErrorException('Error Occured');
     }
   }
@@ -88,7 +94,7 @@ export class UserService {
       if (updateUserDto.password != null) {
         await HashingHelper.hashData(updateUserDto.password);
       }
-      return await this.prismaService.users.update({
+      return await this.prismaService.user.update({
         where: {
           id,
         },
@@ -105,14 +111,13 @@ export class UserService {
       }
     }
   }
-
   async remove(id: string) {
     try {
       const user = await this.findOne(id);
       if (!user) {
         throw new NotFoundException("this user doasn't exist");
       }
-      await this.prismaService.users.delete({
+      await this.prismaService.user.delete({
         where: {
           id,
         },

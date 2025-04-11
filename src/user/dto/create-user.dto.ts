@@ -22,7 +22,6 @@ export class CreateUserDto {
   lastName: string;
   @IsStrongPassword()
   @IsNotEmpty()
-  @Exclude()
   password: string;
   @IsEmail()
   @IsNotEmpty()
