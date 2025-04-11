@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -14,27 +8,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String    @id @default(uuid())
-  firstName String
-  lastName  String
-  email     String    @unique
-  password  String
-  role      Role
-  orders    Order[]
-  products  Product[]
-
-  @@map("users")
-}
-
 model Product {
   id        String  @id @default(uuid())
   sellerId  String
   price     Decimal
   quality   Decimal
-  seller    User    @relation(fields: [sellerId], references: [id])
-  orders    Order[]
   accountId String?
+  orders    Order[]
+  seller    users   @relation(fields: [sellerId], references: [id])
 }
 
 model Order {
@@ -42,11 +23,22 @@ model Order {
   customerId String
   date       DateTime
   quantity   Int
-  product    Product  @relation(fields: [productId], references: [id])
-  customer   User     @relation(fields: [customerId], references: [id])
   accountId  String?
+  customer   users    @relation(fields: [customerId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
 
   @@unique([productId, customerId])
+}
+
+model users {
+  id        String    @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String    @unique
+  password  String
+  role      Role
+  Order     Order[]
+  products  Product[]
 }
 
 enum Role {
