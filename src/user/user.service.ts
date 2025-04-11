@@ -9,23 +9,29 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingHelper } from 'src/helper/hashing.helper';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
-export class userervice {
+export class UserService {
   constructor(private prismaService: PrismaService) {}
   async create(createUserDto: CreateUserDto) {
     try {
       const existingUser = await this.findByEmail(createUserDto.email);
+
       if (existingUser) {
-        throw new ConflictException('A user with this email already exists');
+        throw new ConflictException('User already exists');
       }
+      let userData = plainToClass(CreateUserDto, createUserDto);
       const hashedPassword = await HashingHelper.hashData(
         createUserDto.password,
       );
+      userData = {
+        ...userData,
+        password: hashedPassword,
+      };
       const createdUser = await this.prismaService.user.create({
         data: {
-          ...createUserDto,
-          password: hashedPassword,
+          ...userData,
         },
       });
       const { password, ...result } = createdUser;

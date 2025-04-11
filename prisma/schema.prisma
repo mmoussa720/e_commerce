@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -15,7 +14,7 @@ model Product {
   quality   Decimal
   accountId String?
   orders    Order[]
-  seller    User   @relation(fields: [sellerId], references: [id])
+  seller    User    @relation(fields: [sellerId], references: [id])
 
   @@map("products")
 }
@@ -26,7 +25,7 @@ model Order {
   date       DateTime
   quantity   Int
   accountId  String?
-  customer   User    @relation(fields: [customerId], references: [id])
+  customer   User     @relation(fields: [customerId], references: [id])
   product    Product  @relation(fields: [productId], references: [id])
 
   @@unique([productId, customerId])
@@ -39,6 +38,7 @@ model User {
   lastName  String
   email     String    @unique
   password  String
+  verified  Boolean   @default(false)
   role      Role
   Order     Order[]
   products  Product[]
