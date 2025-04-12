@@ -10,3 +10,7 @@ export class LoginDto {
   @IsNotEmpty()
   password: string;
 }
+export class RefreshTokenDto {
+  @ApiProperty()
+  refreshToken: string;
+}

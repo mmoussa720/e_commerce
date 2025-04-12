@@ -17,9 +17,9 @@ export class AuthService {
     private userService: UserService,
   ) {}
   async generateTokens(payload: any): Promise<any> {
-    const accessToken = await this.jwtService.sign(payload);
-    const refreshToken = await this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH,
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
       expiresIn: '7d',
     });
     return { accessToken, refreshToken };
@@ -74,6 +74,7 @@ export class AuthService {
           id: decoded?.sub,
         },
       });
+      console.log({ user });
       if (!user) {
         throw new NotFoundException('User not found !');
       }
@@ -86,7 +87,7 @@ export class AuthService {
       });
       return { accessToken, refreshToken };
     } catch (error) {
-      throw new UnauthorizedException('Invalid refresh tokne !');
+      throw new UnauthorizedException('Invalid refresh token !');
     }
   }
 }
