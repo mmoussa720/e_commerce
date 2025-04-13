@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingHelper } from 'src/helper/hashing.helper';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
+import { InvalidEmailOrPasswordException } from './exceptions/invalid-email-or-password.exception';
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,7 +30,7 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new InvalidEmailOrPasswordException();
     }
     const isPasswordValid = await HashingHelper.compareData(
       dto.password,
@@ -69,11 +70,7 @@ export class AuthService {
       const decoded = await this.jwtService.verify(refreshTok, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
-      const user = await this.prismaService.user.findUnique({
-        where: {
-          id: decoded?.sub,
-        },
-      });
+      const user = await this.userService.findOne(decoded?.sub);
       console.log({ user });
       if (!user) {
         throw new NotFoundException('User not found !');

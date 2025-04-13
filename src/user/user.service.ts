@@ -10,6 +10,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingHelper } from 'src/helper/hashing.helper';
 import { plainToClass } from 'class-transformer';
+import { UserNotFoundException } from './exceptions/user-not-found.exception';
+import { UserAlreadyExistException } from './exceptions/user-already-exist.exception';
 
 @Injectable()
 export class UserService {
@@ -19,7 +21,7 @@ export class UserService {
       const existingUser = await this.findByEmail(createUserDto.email);
 
       if (existingUser) {
-        throw new ConflictException('User already exists');
+        throw new UserAlreadyExistException();
       }
       let userData = plainToClass(CreateUserDto, createUserDto);
       const hashedPassword = await HashingHelper.hashData(
@@ -94,7 +96,7 @@ export class UserService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
     if (!user) {
-      throw new NotFoundException("This user doasn't exist");
+      throw new UserNotFoundException();
     }
     try {
       if (updateUserDto.password != null) {
@@ -117,6 +119,8 @@ export class UserService {
       }
     }
   }
+
+  
   async remove(id: string) {
     try {
       const user = await this.findOne(id);
