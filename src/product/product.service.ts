@@ -4,6 +4,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { UserNotFoundException } from 'src/user/exceptions/user-not-found.exception';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProductService {
@@ -16,8 +17,13 @@ export class ProductService {
     if (!seller) {
       throw new UserNotFoundException();
     }
+    const dto = plainToInstance(CreateProductDto, createProductDto);
     const product = await this.prismaService.product.create({
-      data: createProductDto,
+      data: {
+        name: dto.name,
+        price: dto.price,
+        sellerId: dto.sellerId,
+      },
     });
     return product;
   }
@@ -48,8 +54,9 @@ export class ProductService {
   async findOne(id: string) {
     return await this.prismaService.product.findUnique({
       where: {
-      id
-    }})
+        id,
+      },
+    });
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
@@ -62,6 +69,4 @@ export class ProductService {
   async remove(id: string): Promise<void> {
     await this.prismaService.product.delete({ where: { id } });
   }
-
-
 }
